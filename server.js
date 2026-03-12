@@ -68,12 +68,21 @@ app.get('/alunos', verificarToken, async (req, res) => {
 app.put('/alunos/:id', verificarToken, async (req, res) => {
   const alunoAtualizado = await Aluno.findByIdAndUpdate(
     req.params.id, 
-    { pontos: req.body.pontos }, 
+    req.body, // 👈 MUDANÇA AQUI: Agora ele aceita o objeto inteiro (nome, matricula, pontos...)
     { new: true }
   );
   res.json(alunoAtualizado);
 });
 
+// 🗑️ NOVA ROTA: PROTEGIDA para EXCLUIR um aluno
+app.delete('/alunos/:id', verificarToken, async (req, res) => {
+  try {
+    await Aluno.findByIdAndDelete(req.params.id);
+    res.json({ mensagem: 'Aluno excluído com sucesso!' });
+  } catch (erro) {
+    res.status(500).json({ error: 'Erro ao excluir aluno.' });
+  }
+});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
